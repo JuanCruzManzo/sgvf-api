@@ -77,7 +77,7 @@ builder.Services.AddAuthorization();
 // Construcción de la app
 // =========================
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+builder.Services.AddScoped<IProductoService, ProductoService>();
 var app = builder.Build();
 
 // =========================
