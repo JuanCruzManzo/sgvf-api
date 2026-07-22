@@ -14,6 +14,19 @@ var builder = WebApplication.CreateBuilder(args);
 // =========================
 
 builder.Services.AddControllers();
+builder.Services.AddControllers();
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Base de datos
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -93,6 +106,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("FrontendPolicy");
 
 // Primero autentica
 app.UseAuthentication();
