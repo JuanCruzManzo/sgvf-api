@@ -2,6 +2,7 @@
 using sgvf_api.DTOs.Productos;
 using sgvf_api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace sgvf_api.Controllers
 {
@@ -35,9 +36,17 @@ namespace sgvf_api.Controllers
             return Ok(producto);
         }
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Crear(ProductoCreateDto productoDto)
         {
-            var producto = await _productoService.Crear(productoDto);
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (usuarioIdClaim == null)
+                return Unauthorized();
+
+            int usuarioId = int.Parse(usuarioIdClaim.Value);
+
+            var producto = await _productoService.Crear(productoDto, usuarioId);
 
             return CreatedAtAction(
                 nameof(ObtenerPorId),

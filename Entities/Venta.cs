@@ -9,7 +9,7 @@
         public decimal Total { get; set; }
         public string EstadoPago { get; set; } = string.Empty;
         public decimal SaldoPendiente { get; set; }
-
+        public bool Cancelada { get; set; } = false;
         public Cliente? Cliente { get; set; }
 
         public Usuario Usuario { get; set; } = null!;

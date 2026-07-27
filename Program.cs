@@ -5,6 +5,7 @@ using sgvf_api.Data;
 using sgvf_api.Services;
 using sgvf_api.Services.Interfaces;
 using System.Text;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Servicios
 // =========================
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Base de datos
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -70,17 +75,35 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
+// CORS para React
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Authorization
 builder.Services.AddAuthorization();
 
-// =========================
-// Construcción de la app
-// =========================
+// Servicios propios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProveedorService, ProveedorService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
+builder.Services.AddScoped<IMovimientoStockService, MovimientoStockService>();
+
+// =========================
+// Construcción de la app
+// =========================
+
 var app = builder.Build();
+
 
 // =========================
 // Pipeline HTTP
@@ -93,6 +116,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// CORS tiene que ir acá
+app.UseCors("ReactPolicy");
 
 // Primero autentica
 app.UseAuthentication();
