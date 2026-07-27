@@ -2,8 +2,8 @@
 using sgvf_api.Data;
 using sgvf_api.DTOs.Ventas;
 using sgvf_api.Entities;
+using sgvf_api.Enums;
 using sgvf_api.Services.Interfaces;
-
 namespace sgvf_api.Services
 {
     public class VentaService : IVentaService
@@ -125,7 +125,11 @@ namespace sgvf_api.Services
 
                 total += subtotal;
 
+                int stockAnterior = producto.Stock;
+
                 producto.Stock -= item.CantidadCajones;
+
+                int stockPosterior = producto.Stock;
 
                 detallesVenta.Add(new DetalleVenta
                 {
@@ -133,6 +137,18 @@ namespace sgvf_api.Services
                     CantidadCajones = item.CantidadCajones,
                     PrecioUnitario = item.PrecioUnitario,
                     Subtotal = subtotal
+                });
+
+                _context.MovimientosStock.Add(new MovimientoStock
+                {
+                    ProductoId = producto.Id,
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.Now,
+                    TipoMovimiento = TipoMovimientoStock.Salida,
+                    Motivo = MotivoMovimientoStock.Venta,
+                    CantidadCajones = item.CantidadCajones,
+                    StockAnterior = stockAnterior,
+                    StockPosterior = stockPosterior
                 });
             }
 
@@ -153,6 +169,21 @@ namespace sgvf_api.Services
             };
 
             _context.Ventas.Add(venta);
+
+            await _context.SaveChangesAsync();
+
+            var movimientosSinVenta = await _context.MovimientosStock
+                .Where(m => m.VentaId == null &&
+                            m.UsuarioId == usuarioId &&
+                            m.Motivo == MotivoMovimientoStock.Venta)
+                .OrderByDescending(m => m.Fecha)
+                .Take(detallesVenta.Count)
+                .ToListAsync();
+
+            foreach (var movimiento in movimientosSinVenta)
+            {
+                movimiento.VentaId = venta.Id;
+            }
 
             await _context.SaveChangesAsync();
 
