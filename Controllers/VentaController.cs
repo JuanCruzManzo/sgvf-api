@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using sgvf_api.DTOs.Ventas;
 using sgvf_api.Services.Interfaces;
+using sgvf_api.Services.Pdf;
 using System.Security.Claims;
 
 namespace sgvf_api.Controllers
@@ -12,10 +13,11 @@ namespace sgvf_api.Controllers
     public class VentaController : ControllerBase
     {
         private readonly IVentaService _ventaService;
-
-        public VentaController(IVentaService ventaService)
+        private readonly ITicketPdfService _ticketPdfService;
+        public VentaController(IVentaService ventaService, ITicketPdfService ticketPdfService)
         {
             _ventaService = ventaService;
+            _ticketPdfService = ticketPdfService;
         }
 
         // GET: api/venta
@@ -93,6 +95,16 @@ namespace sgvf_api.Controllers
                     mensaje = ex.Message
                 });
             }
+        }
+        [HttpGet("{id}/ticket")]
+        public async Task<IActionResult> DescargarTicket(int id)
+        {
+            var pdf = await _ticketPdfService.GenerarTicketAsync(id);
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"Ticket-{id}.pdf");
         }
     }
 }
