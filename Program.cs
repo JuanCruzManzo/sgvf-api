@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using sgvf_api.Services.Pdf;
 using sgvf_api.Data;
 using sgvf_api.Services;
 using sgvf_api.Services.Interfaces;
@@ -97,7 +98,9 @@ builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProveedorService, ProveedorService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IMovimientoStockService, MovimientoStockService>();
+builder.Services.AddScoped<ITicketPdfService, TicketPdfService>();
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 // =========================
 // Construcción de la app
 // =========================
