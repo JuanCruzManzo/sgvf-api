@@ -102,9 +102,9 @@ namespace sgvf_api.Controllers
             var pdf = await _ticketPdfService.GenerarTicketAsync(id);
 
             return File(
-                pdf,
-                "application/pdf",
-                $"Ticket-{id}.pdf");
+     pdf,
+     "application/pdf",
+     $"Ticket-Venta-{id}-{DateTime.Now:yyyyMMdd}.pdf");
         }
     }
 }
