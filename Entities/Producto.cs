@@ -10,5 +10,6 @@
         public bool Activo { get; set; }
 
         public ICollection<DetalleVenta> DetallesVenta { get; set; } = new List<DetalleVenta>();
+        public ICollection<MovimientoStock> MovimientosStock { get; set; } = new List<MovimientoStock>();
     }
 }

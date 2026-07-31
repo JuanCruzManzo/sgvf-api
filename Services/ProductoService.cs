@@ -3,6 +3,7 @@ using sgvf_api.Data;
 using sgvf_api.DTOs.Productos;
 using sgvf_api.Entities;
 using sgvf_api.Services.Interfaces;
+using sgvf_api.Enums;
 
 namespace sgvf_api.Services
 {
@@ -50,7 +51,7 @@ namespace sgvf_api.Services
             };
         }
 
-        public async Task<ProductoResponseDto> Crear(ProductoCreateDto productoDto)
+        public async Task<ProductoResponseDto> Crear(ProductoCreateDto productoDto, int usuarioId)
         {
             var producto = new Producto
             {
@@ -62,6 +63,23 @@ namespace sgvf_api.Services
             };
 
             _context.Productos.Add(producto);
+
+            await _context.SaveChangesAsync();
+
+            var movimiento = new MovimientoStock
+            {
+                ProductoId = producto.Id,
+                UsuarioId = usuarioId,
+                Fecha = DateTime.Now,
+                TipoMovimiento = TipoMovimientoStock.Entrada,
+                Motivo = MotivoMovimientoStock.AltaProducto,
+                CantidadCajones = producto.Stock,
+                StockAnterior = 0,
+                StockPosterior = producto.Stock
+            };
+
+            _context.MovimientosStock.Add(movimiento);
+
             await _context.SaveChangesAsync();
 
             return new ProductoResponseDto

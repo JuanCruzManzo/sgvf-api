@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using sgvf_api.Data;
 
@@ -11,9 +12,11 @@ using sgvf_api.Data;
 namespace sgvf_api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260722230930_AgregarCanceladaVenta")]
+    partial class AgregarCanceladaVenta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,52 +88,6 @@ namespace sgvf_api.Migrations
                     b.HasIndex("VentaId");
 
                     b.ToTable("DetallesVenta");
-                });
-
-            modelBuilder.Entity("sgvf_api.Entities.MovimientoStock", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CantidadCajones")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Motivo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockAnterior")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockPosterior")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoMovimiento")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("VentaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductoId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.HasIndex("VentaId");
-
-                    b.ToTable("MovimientosStock");
                 });
 
             modelBuilder.Entity("sgvf_api.Entities.PagoCliente", b =>
@@ -337,32 +294,6 @@ namespace sgvf_api.Migrations
                     b.Navigation("Venta");
                 });
 
-            modelBuilder.Entity("sgvf_api.Entities.MovimientoStock", b =>
-                {
-                    b.HasOne("sgvf_api.Entities.Producto", "Producto")
-                        .WithMany("MovimientosStock")
-                        .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("sgvf_api.Entities.Usuario", "Usuario")
-                        .WithMany("MovimientosStock")
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("sgvf_api.Entities.Venta", "Venta")
-                        .WithMany()
-                        .HasForeignKey("VentaId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Producto");
-
-                    b.Navigation("Usuario");
-
-                    b.Navigation("Venta");
-                });
-
             modelBuilder.Entity("sgvf_api.Entities.PagoCliente", b =>
                 {
                     b.HasOne("sgvf_api.Entities.Cliente", "Cliente")
@@ -412,8 +343,6 @@ namespace sgvf_api.Migrations
             modelBuilder.Entity("sgvf_api.Entities.Producto", b =>
                 {
                     b.Navigation("DetallesVenta");
-
-                    b.Navigation("MovimientosStock");
                 });
 
             modelBuilder.Entity("sgvf_api.Entities.Proveedor", b =>
@@ -423,8 +352,6 @@ namespace sgvf_api.Migrations
 
             modelBuilder.Entity("sgvf_api.Entities.Usuario", b =>
                 {
-                    b.Navigation("MovimientosStock");
-
                     b.Navigation("Ventas");
                 });
 
