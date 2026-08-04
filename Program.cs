@@ -99,6 +99,8 @@ builder.Services.AddScoped<IProveedorService, ProveedorService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IMovimientoStockService, MovimientoStockService>();
 builder.Services.AddScoped<ITicketPdfService, TicketPdfService>();
+builder.Services.AddScoped<IPagoClienteService, PagoClienteService>();
+
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 // =========================
