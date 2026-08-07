@@ -53,6 +53,25 @@ namespace sgvf_api.Services
             };
         }
 
+        public async Task<IEnumerable<PagoClienteResponseDto>> ObtenerPorCliente(int clienteId)
+        {
+            var pagos = await _context.PagosClientes
+                .Include(p => p.Cliente)
+                .Where(p => p.ClienteId == clienteId)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
+
+            return pagos.Select(p => new PagoClienteResponseDto
+            {
+                Id = p.Id,
+                ClienteId = p.ClienteId,
+                Cliente = p.Cliente.Nombre,
+                Fecha = p.Fecha,
+                Monto = p.Monto,
+                Observaciones = p.Observaciones
+            });
+        }
+
         public async Task<PagoClienteResponseDto> Crear(PagoClienteCreateDto dto)
         {
             var cliente = await _context.Clientes
