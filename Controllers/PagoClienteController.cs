@@ -34,7 +34,13 @@ namespace sgvf_api.Controllers
 
             return Ok(pago);
         }
+        [HttpGet("cliente/{clienteId}")]
+        public async Task<IActionResult> ObtenerPorCliente(int clienteId)
+        {
+            var pagos = await _pagoClienteService.ObtenerPorCliente(clienteId);
 
+            return Ok(pagos);
+        }
         [HttpPost]
         public async Task<IActionResult> Crear(PagoClienteCreateDto dto)
         {
