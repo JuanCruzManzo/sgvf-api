@@ -184,6 +184,13 @@ namespace sgvf_api.Services
             {
                 movimiento.VentaId = venta.Id;
             }
+            if (dto.ClienteId.HasValue && dto.EstadoPago == "Pendiente")
+            {
+                var cliente = await _context.Clientes.FindAsync(dto.ClienteId.Value);
+
+                if (cliente != null)
+                    cliente.SaldoPendiente += total;
+            }
 
             await _context.SaveChangesAsync();
 
