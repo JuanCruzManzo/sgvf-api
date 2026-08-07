@@ -10,7 +10,7 @@ namespace sgvf_api.Services.Interfaces
 
         Task<ProductoResponseDto> Crear(ProductoCreateDto productoDto, int usuarioId);
 
-        Task<bool> Actualizar(int id, ProductoUpdateDto productoDto);
+        Task<bool> Actualizar(int id, ProductoUpdateDto productoDto, int usuarioId);
 
         Task<bool> Eliminar(int id);
     }
