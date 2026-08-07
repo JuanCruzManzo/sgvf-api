@@ -93,24 +93,52 @@ namespace sgvf_api.Services
             };
         }
 
-        public async Task<bool> Actualizar(int id, ProductoUpdateDto productoDto)
+        public async Task<bool> Actualizar(
+            int id,
+            ProductoUpdateDto productoDto,
+            int usuarioId
+        )
         {
             var producto = await _context.Productos.FindAsync(id);
 
             if (producto == null)
                 return false;
 
+            int stockAnterior = producto.Stock;
+            int stockNuevo = productoDto.Stock;
+
             producto.Nombre = productoDto.Nombre;
             producto.Descripcion = productoDto.Descripcion;
-            producto.Stock = productoDto.Stock;
+            producto.Stock = stockNuevo;
             producto.StockMinimo = productoDto.StockMinimo;
             producto.Activo = productoDto.Activo;
+
+            if (stockAnterior != stockNuevo)
+            {
+                int diferencia = Math.Abs(stockNuevo - stockAnterior);
+
+                var movimiento = new MovimientoStock
+                {
+                    ProductoId = producto.Id,
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.Now,
+                    TipoMovimiento =
+                        stockNuevo > stockAnterior
+                            ? TipoMovimientoStock.Entrada
+                            : TipoMovimientoStock.Salida,
+                    Motivo = MotivoMovimientoStock.AjusteInventario,
+                    CantidadCajones = diferencia,
+                    StockAnterior = stockAnterior,
+                    StockPosterior = stockNuevo
+                };
+
+                _context.MovimientosStock.Add(movimiento);
+            }
 
             await _context.SaveChangesAsync();
 
             return true;
         }
-
         public async Task<bool> Eliminar(int id)
         {
             var producto = await _context.Productos.FindAsync(id);
@@ -118,7 +146,7 @@ namespace sgvf_api.Services
             if (producto == null)
                 return false;
 
-            _context.Productos.Remove(producto);
+            producto.Activo = false;
 
             await _context.SaveChangesAsync();
 

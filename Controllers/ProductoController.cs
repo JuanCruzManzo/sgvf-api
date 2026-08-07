@@ -36,7 +36,6 @@ namespace sgvf_api.Controllers
             return Ok(producto);
         }
         [HttpPost]
-        [HttpPost]
         public async Task<IActionResult> Crear(ProductoCreateDto productoDto)
         {
             var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -55,9 +54,23 @@ namespace sgvf_api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Actualizar(int id, ProductoUpdateDto productoDto)
+        public async Task<IActionResult> Actualizar(
+            int id,
+            ProductoUpdateDto productoDto
+        )
         {
-            var actualizado = await _productoService.Actualizar(id, productoDto);
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (usuarioIdClaim == null)
+                return Unauthorized();
+
+            int usuarioId = int.Parse(usuarioIdClaim.Value);
+
+            var actualizado = await _productoService.Actualizar(
+                id,
+                productoDto,
+                usuarioId
+            );
 
             if (!actualizado)
                 return NotFound();
