@@ -13,5 +13,7 @@ namespace sgvf_api.Services.Interfaces
         Task<bool> Actualizar(int id, ClienteUpdateDto clienteDto);
 
         Task<bool> Eliminar(int id);
+
+        Task<bool> AumentarDeuda(int id, decimal monto);
     }
 }
