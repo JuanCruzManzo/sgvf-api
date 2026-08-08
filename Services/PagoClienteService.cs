@@ -107,7 +107,33 @@ namespace sgvf_api.Services
 
             return (await ObtenerPorId(pago.Id))!;
         }
+        public async Task<PagoClienteResponseDto> CrearDeuda(PagoClienteCreateDto dto)
+        {
+            var cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.Id == dto.ClienteId && c.Activo);
 
+            if (cliente == null)
+                throw new Exception("El cliente no existe.");
+
+            if (dto.Monto <= 0)
+                throw new Exception("El monto debe ser mayor a cero.");
+
+            cliente.SaldoPendiente += dto.Monto;
+
+            var pago = new PagoCliente
+            {
+                ClienteId = dto.ClienteId,
+                Fecha = DateTime.Now,
+                Monto = dto.Monto,
+                Observaciones = dto.Observaciones
+            };
+
+            _context.PagosClientes.Add(pago);
+
+            await _context.SaveChangesAsync();
+
+            return (await ObtenerPorId(pago.Id))!;
+        }
         public async Task<bool> Eliminar(int id)
         {
             var pago = await _context.PagosClientes

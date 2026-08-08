@@ -98,6 +98,23 @@ namespace sgvf_api.Services
 
             return true;
         }
+        public async Task<bool> AumentarDeuda(int id, decimal monto)
+        {
+            if (monto <= 0)
+                throw new Exception("El monto debe ser mayor que cero.");
+
+            var cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.Id == id && c.Activo);
+
+            if (cliente == null)
+                return false;
+
+            cliente.SaldoPendiente += monto;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
 
         public async Task<bool> Eliminar(int id)
         {
