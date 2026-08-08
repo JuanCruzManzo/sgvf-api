@@ -12,6 +12,8 @@ namespace sgvf_api.Services.Interfaces
 
         Task<PagoClienteResponseDto> Crear(PagoClienteCreateDto dto);
 
+        Task<PagoClienteResponseDto> CrearDeuda(PagoClienteCreateDto dto);
+
         Task<bool> Eliminar(int id);
     }
 }

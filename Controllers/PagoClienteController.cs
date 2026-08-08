@@ -23,7 +23,26 @@ namespace sgvf_api.Controllers
             var pagos = await _pagoClienteService.ObtenerTodos();
             return Ok(pagos);
         }
+        [HttpPost("deuda")]
+        public async Task<IActionResult> CrearDeuda(PagoClienteCreateDto dto)
+        {
+            try
+            {
+                var deuda = await _pagoClienteService.CrearDeuda(dto);
 
+                return CreatedAtAction(
+                    nameof(ObtenerPorId),
+                    new { id = deuda.Id },
+                    deuda);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    mensaje = ex.Message
+                });
+            }
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerPorId(int id)
         {
