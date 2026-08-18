@@ -36,7 +36,6 @@ namespace sgvf_api.Controllers
             return Ok(producto);
         }
         [HttpPost]
-        [HttpPost]
         public async Task<IActionResult> Crear(ProductoCreateDto productoDto)
         {
             var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
