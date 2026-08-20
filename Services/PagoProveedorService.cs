@@ -52,11 +52,32 @@ namespace sgvf_api.Services
                 Observaciones = pago.Observaciones
             };
         }
+        public async Task<IEnumerable<PagoProveedorResponseDto>>
+            ObtenerPorProveedor(int proveedorId)
+        {
+            var pagos = await _context.PagosProveedores
+                .Include(p => p.Proveedor)
+                .Where(p => p.ProveedorId == proveedorId)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
+
+            return pagos.Select(p => new PagoProveedorResponseDto
+            {
+                Id = p.Id,
+                ProveedorId = p.ProveedorId,
+                Proveedor = p.Proveedor.Nombre,
+                Fecha = p.Fecha,
+                Monto = p.Monto,
+                Observaciones = p.Observaciones
+            });
+        }
 
         public async Task<PagoProveedorResponseDto> Crear(PagoProveedorCreateDto dto)
         {
             var proveedor = await _context.Proveedores
-                .FirstOrDefaultAsync(p => p.Id == dto.ProveedorId);
+                .FirstOrDefaultAsync(
+                    p => p.Id == dto.ProveedorId && p.Activo
+                );
 
             if (proveedor == null)
                 throw new Exception("El proveedor no existe.");

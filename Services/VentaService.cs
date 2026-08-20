@@ -18,7 +18,7 @@ namespace sgvf_api.Services
         public async Task<IEnumerable<VentaResponseDto>> ObtenerTodas()
         {
             var ventas = await _context.Ventas
-.Where(v => !v.Cancelada)
+                .Where(v => !v.Cancelada)
                 .Include(v => v.Cliente)
                 .Include(v => v.Usuario)
                 .Include(v => v.DetallesVenta)
@@ -189,7 +189,21 @@ namespace sgvf_api.Services
                 var cliente = await _context.Clientes.FindAsync(dto.ClienteId.Value);
 
                 if (cliente != null)
+                {
                     cliente.SaldoPendiente += total;
+
+                    var movimientoDeuda = new PagoCliente
+                    {
+                        ClienteId = cliente.Id,
+                        Fecha = venta.Fecha,
+                        Monto = total,
+                        Observaciones = $"Venta #{venta.Id}",
+                        Tipo = "Deuda",
+                        VentaId = venta.Id
+                    };
+
+                    _context.PagosClientes.Add(movimientoDeuda);
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -250,6 +264,15 @@ namespace sgvf_api.Services
             // CANCELAR VENTA
             // =========================
 
+            var movimientoVenta = await _context.PagosClientes
+                .FirstOrDefaultAsync(p =>
+                    p.VentaId == venta.Id &&
+                    p.Tipo == "Deuda");
+
+            if (movimientoVenta != null)
+            {
+                _context.PagosClientes.Remove(movimientoVenta);
+            }
             venta.Cancelada = true;
 
             await _context.SaveChangesAsync();

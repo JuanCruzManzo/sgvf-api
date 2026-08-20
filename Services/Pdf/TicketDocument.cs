@@ -2,7 +2,7 @@
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using sgvf_api.Entities;
-using QuestPDF.Fluent;
+
 namespace sgvf_api.Services.Pdf
 {
     public class TicketDocument : IDocument

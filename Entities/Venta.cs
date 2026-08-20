@@ -15,5 +15,7 @@
         public Usuario Usuario { get; set; } = null!;
 
         public ICollection<DetalleVenta> DetallesVenta { get; set; } = new List<DetalleVenta>();
+        public ICollection<AplicacionPagoCliente> AplicacionesPagos { get; set; }
+        = new List<AplicacionPagoCliente>();
     }
 }

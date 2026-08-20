@@ -29,7 +29,9 @@ namespace sgvf_api.Services
                 Cliente = p.Cliente.Nombre,
                 Fecha = p.Fecha,
                 Monto = p.Monto,
-                Observaciones = p.Observaciones
+                Observaciones = p.Observaciones,
+                Tipo = p.Tipo,
+                VentaId = p.VentaId
             });
         }
 
@@ -49,7 +51,9 @@ namespace sgvf_api.Services
                 Cliente = pago.Cliente.Nombre,
                 Fecha = pago.Fecha,
                 Monto = pago.Monto,
-                Observaciones = pago.Observaciones
+                Observaciones = pago.Observaciones,
+                Tipo = pago.Tipo,
+                VentaId = pago.VentaId
             };
         }
 
@@ -68,7 +72,9 @@ namespace sgvf_api.Services
                 Cliente = p.Cliente.Nombre,
                 Fecha = p.Fecha,
                 Monto = p.Monto,
-                Observaciones = p.Observaciones
+                Observaciones = p.Observaciones,
+                Tipo = p.Tipo,
+                VentaId = p.VentaId
             });
         }
 
@@ -94,7 +100,9 @@ namespace sgvf_api.Services
                 ClienteId = dto.ClienteId,
                 Fecha = DateTime.Now,
                 Monto = dto.Monto,
-                Observaciones = dto.Observaciones
+                Observaciones = dto.Observaciones,
+                Tipo = "Pago",
+                VentaId = null
             };
 
             _context.PagosClientes.Add(pago);
@@ -103,6 +111,39 @@ namespace sgvf_api.Services
             cliente.FechaUltimoCobro = DateTime.Now;
             cliente.MontoUltimoCobro = dto.Monto;
 
+            decimal montoRestante = dto.Monto;
+            var ventasPendientes = await _context.Ventas
+                .Where(v =>
+                    v.ClienteId == dto.ClienteId &&
+                    !v.Cancelada &&
+                    v.SaldoPendiente > 0)
+                .OrderBy(v => v.Fecha)
+                .ThenBy(v => v.Id)
+                .ToListAsync();
+
+            foreach (var venta in ventasPendientes)
+            {
+                if (montoRestante <= 0)
+                    break;
+
+                decimal montoAplicado =
+                    Math.Min(montoRestante, venta.SaldoPendiente);
+
+                venta.SaldoPendiente -= montoAplicado;
+
+                if (venta.SaldoPendiente == 0)
+                    venta.EstadoPago = "Pagado";
+                else
+                    venta.EstadoPago = "Pendiente";
+
+                pago.Aplicaciones.Add(new AplicacionPagoCliente
+                {
+                    VentaId = venta.Id,
+                    MontoAplicado = montoAplicado
+                });
+
+                montoRestante -= montoAplicado;
+            }
             await _context.SaveChangesAsync();
 
             return (await ObtenerPorId(pago.Id))!;
@@ -125,7 +166,9 @@ namespace sgvf_api.Services
                 ClienteId = dto.ClienteId,
                 Fecha = DateTime.Now,
                 Monto = dto.Monto,
-                Observaciones = dto.Observaciones
+                Observaciones = dto.Observaciones,
+                Tipo = "Deuda",
+                VentaId = null
             };
 
             _context.PagosClientes.Add(pago);
@@ -138,12 +181,32 @@ namespace sgvf_api.Services
         {
             var pago = await _context.PagosClientes
                 .Include(p => p.Cliente)
+                .Include(p => p.Aplicaciones)
+                    .ThenInclude(a => a.Venta)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (pago == null)
                 return false;
 
-            pago.Cliente.SaldoPendiente += pago.Monto;
+            if (pago.Tipo == "Pago")
+            {
+                pago.Cliente.SaldoPendiente += pago.Monto;
+
+                foreach (var aplicacion in pago.Aplicaciones)
+                {
+                    aplicacion.Venta.SaldoPendiente +=
+                        aplicacion.MontoAplicado;
+
+                    aplicacion.Venta.EstadoPago = "Pendiente";
+                }
+            }
+            else if (pago.Tipo == "Deuda")
+            {
+                pago.Cliente.SaldoPendiente -= pago.Monto;
+
+                if (pago.Cliente.SaldoPendiente < 0)
+                    pago.Cliente.SaldoPendiente = 0;
+            }
 
             _context.PagosClientes.Remove(pago);
 

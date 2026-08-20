@@ -13,5 +13,9 @@
         public decimal Monto { get; set; }
 
         public string? Observaciones { get; set; }
+        
+        public string Tipo { get; set; } = string.Empty;
+
+        public int? VentaId { get; set; }
     }
 }

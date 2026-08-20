@@ -13,5 +13,6 @@
         public DateTime? FechaUltimoPago { get; set; }
 
         public decimal? MontoUltimoPago { get; set; }
+        public bool Activo { get; set; }
     }
 }

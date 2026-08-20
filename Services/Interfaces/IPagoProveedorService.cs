@@ -7,6 +7,9 @@ namespace sgvf_api.Services.Interfaces
         Task<IEnumerable<PagoProveedorResponseDto>> ObtenerTodos();
 
         Task<PagoProveedorResponseDto?> ObtenerPorId(int id);
+        Task<IEnumerable<PagoProveedorResponseDto>> ObtenerPorProveedor(
+            int proveedorId
+        );
 
         Task<PagoProveedorResponseDto> Crear(PagoProveedorCreateDto dto);
 

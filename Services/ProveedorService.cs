@@ -25,7 +25,8 @@ namespace sgvf_api.Services
                     Telefono = p.Telefono,
                     SaldoPendiente = p.SaldoPendiente,
                     FechaUltimoPago = p.FechaUltimoPago,
-                    MontoUltimoPago = p.MontoUltimoPago
+                    MontoUltimoPago = p.MontoUltimoPago,
+                    Activo = p.Activo
                 })
                 .ToListAsync();
 
@@ -46,7 +47,8 @@ namespace sgvf_api.Services
                 Telefono = proveedor.Telefono,
                 SaldoPendiente = proveedor.SaldoPendiente,
                 FechaUltimoPago = proveedor.FechaUltimoPago,
-                MontoUltimoPago = proveedor.MontoUltimoPago
+                MontoUltimoPago = proveedor.MontoUltimoPago,
+                Activo = proveedor.Activo
             };
         }
 
@@ -58,7 +60,8 @@ namespace sgvf_api.Services
                 Telefono = proveedorDto.Telefono ?? string.Empty,
                 SaldoPendiente = 0,
                 FechaUltimoPago = null,
-                MontoUltimoPago = null
+                MontoUltimoPago = null,
+                Activo = true
             };
 
             _context.Proveedores.Add(proveedor);
@@ -72,7 +75,8 @@ namespace sgvf_api.Services
                 Telefono = proveedor.Telefono,
                 SaldoPendiente = proveedor.SaldoPendiente,
                 FechaUltimoPago = proveedor.FechaUltimoPago,
-                MontoUltimoPago = proveedor.MontoUltimoPago
+                MontoUltimoPago = proveedor.MontoUltimoPago,
+                Activo = proveedor.Activo
             };
         }
 
@@ -85,9 +89,6 @@ namespace sgvf_api.Services
 
             proveedor.Nombre = proveedorDto.Nombre;
             proveedor.Telefono = proveedorDto.Telefono ?? string.Empty;
-            proveedor.SaldoPendiente = proveedorDto.SaldoPendiente;
-            proveedor.FechaUltimoPago = proveedorDto.FechaUltimoPago;
-            proveedor.MontoUltimoPago = proveedorDto.MontoUltimoPago;
 
             await _context.SaveChangesAsync();
 
@@ -101,7 +102,7 @@ namespace sgvf_api.Services
             if (proveedor == null)
                 return false;
 
-            _context.Proveedores.Remove(proveedor);
+            proveedor.Activo = false;
 
             await _context.SaveChangesAsync();
 

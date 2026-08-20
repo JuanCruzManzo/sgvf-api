@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using sgvf_api.Data;
 
@@ -11,9 +12,11 @@ using sgvf_api.Data;
 namespace sgvf_api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820214445_AgregarTipoYVentaAPagoCliente")]
+    partial class AgregarTipoYVentaAPagoCliente
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,33 +24,6 @@ namespace sgvf_api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("sgvf_api.Entities.AplicacionPagoCliente", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("MontoAplicado")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("PagoClienteId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VentaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PagoClienteId");
-
-                    b.HasIndex("VentaId");
-
-                    b.ToTable("AplicacionesPagosClientes");
-                });
 
             modelBuilder.Entity("sgvf_api.Entities.Cliente", b =>
                 {
@@ -395,25 +371,6 @@ namespace sgvf_api.Migrations
                     b.ToTable("Ventas");
                 });
 
-            modelBuilder.Entity("sgvf_api.Entities.AplicacionPagoCliente", b =>
-                {
-                    b.HasOne("sgvf_api.Entities.PagoCliente", "PagoCliente")
-                        .WithMany("Aplicaciones")
-                        .HasForeignKey("PagoClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("sgvf_api.Entities.Venta", "Venta")
-                        .WithMany("AplicacionesPagos")
-                        .HasForeignKey("VentaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PagoCliente");
-
-                    b.Navigation("Venta");
-                });
-
             modelBuilder.Entity("sgvf_api.Entities.DetalleVenta", b =>
                 {
                     b.HasOne("sgvf_api.Entities.Producto", "Producto")
@@ -522,11 +479,6 @@ namespace sgvf_api.Migrations
                     b.Navigation("Ventas");
                 });
 
-            modelBuilder.Entity("sgvf_api.Entities.PagoCliente", b =>
-                {
-                    b.Navigation("Aplicaciones");
-                });
-
             modelBuilder.Entity("sgvf_api.Entities.Producto", b =>
                 {
                     b.Navigation("DetallesVenta");
@@ -550,8 +502,6 @@ namespace sgvf_api.Migrations
 
             modelBuilder.Entity("sgvf_api.Entities.Venta", b =>
                 {
-                    b.Navigation("AplicacionesPagos");
-
                     b.Navigation("DetallesVenta");
                 });
 #pragma warning restore 612, 618
