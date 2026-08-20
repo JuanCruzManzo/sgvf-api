@@ -201,6 +201,7 @@ namespace sgvf_api.Services
         {
             var venta = await _context.Ventas
                 .Include(v => v.DetallesVenta)
+                .Include(v => v.Cliente)
                 .FirstOrDefaultAsync(v => v.Id == id);
 
             if (venta == null)
@@ -209,15 +210,45 @@ namespace sgvf_api.Services
             if (venta.Cancelada)
                 throw new Exception("La venta ya fue cancelada.");
 
+            // =========================
+            // DEVOLVER STOCK
+            // =========================
+
             foreach (var detalle in venta.DetallesVenta)
             {
-                var producto = await _context.Productos.FindAsync(detalle.ProductoId);
+                var producto = await _context.Productos
+                    .FindAsync(detalle.ProductoId);
 
                 if (producto != null)
                 {
                     producto.Stock += detalle.CantidadCajones;
                 }
             }
+
+            // =========================
+            // REVERTIR DEUDA DEL CLIENTE
+            // =========================
+
+            if (
+                venta.EstadoPago == "Pendiente" &&
+                venta.Cliente != null &&
+                venta.SaldoPendiente > 0
+            )
+            {
+                venta.Cliente.SaldoPendiente -= venta.SaldoPendiente;
+
+                // Protección para evitar saldo negativo
+                if (venta.Cliente.SaldoPendiente < 0)
+                {
+                    venta.Cliente.SaldoPendiente = 0;
+                }
+
+                venta.SaldoPendiente = 0;
+            }
+
+            // =========================
+            // CANCELAR VENTA
+            // =========================
 
             venta.Cancelada = true;
 
