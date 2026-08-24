@@ -63,7 +63,10 @@ namespace sgvf_api.Services
 
             return new LoginResponseDto
             {
-                Token = tokenString
+                Token = tokenString,
+                Nombre = usuario.Nombre,
+                Apellido = usuario.Apellido,
+                NombreUsuario = usuario.NombreUsuario
             };
         }
     }
